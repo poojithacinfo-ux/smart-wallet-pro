@@ -169,7 +169,7 @@ export default function Transactions() {
           <div>
             <p className="text-sm text-muted-foreground">Total Income</p>
             <p className="font-display text-2xl font-bold text-success">
-              +${totalIncome.toLocaleString()}
+              +₹{totalIncome.toLocaleString()}
             </p>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function Transactions() {
           <div>
             <p className="text-sm text-muted-foreground">Total Expenses</p>
             <p className="font-display text-2xl font-bold text-destructive">
-              -${totalExpenses.toLocaleString()}
+              -₹{totalExpenses.toLocaleString()}
             </p>
           </div>
         </div>

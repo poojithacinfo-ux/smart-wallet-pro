@@ -281,7 +281,7 @@ export default function Settings() {
                       Pro Plan
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      $9.99/month • Renews Dec 15, 2024
+                      ₹799/month • Renews Dec 15, 2024
                     </p>
                   </div>
                   <Button variant="outline">Upgrade</Button>

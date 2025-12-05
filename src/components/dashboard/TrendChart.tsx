@@ -29,13 +29,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <p className="text-sm">
             <span className="text-success">Income: </span>
             <span className="font-display font-bold text-foreground">
-              ${payload[0]?.value?.toLocaleString()}
+              ₹{payload[0]?.value?.toLocaleString()}
             </span>
           </p>
           <p className="text-sm">
             <span className="text-destructive">Expenses: </span>
             <span className="font-display font-bold text-foreground">
-              ${payload[1]?.value?.toLocaleString()}
+              ₹{payload[1]?.value?.toLocaleString()}
             </span>
           </p>
         </div>
@@ -86,7 +86,7 @@ export function TrendChart() {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `$${value / 1000}k`}
+              tickFormatter={(value) => `₹${value / 1000}k`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area

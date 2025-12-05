@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             <p key={index} className="text-sm">
               <span style={{ color: p.fill }}>{p.name}: </span>
               <span className="font-display font-bold text-foreground">
-                ${p.value.toLocaleString()}
+                ₹{p.value.toLocaleString()}
               </span>
             </p>
           ))}
@@ -70,21 +70,21 @@ export default function Analytics() {
         <div className="glass-card p-6 neon-glow">
           <p className="text-sm text-muted-foreground">Average Monthly Income</p>
           <p className="font-display text-3xl font-bold text-success mt-2">
-            $5,500
+            ₹5,500
           </p>
           <p className="text-xs text-success mt-1">+8.2% vs last 6 months</p>
         </div>
         <div className="glass-card p-6 neon-glow-purple">
           <p className="text-sm text-muted-foreground">Average Monthly Expenses</p>
           <p className="font-display text-3xl font-bold text-accent mt-2">
-            $3,850
+            ₹3,850
           </p>
           <p className="text-xs text-muted-foreground mt-1">Stable trend</p>
         </div>
         <div className="glass-card p-6 neon-glow-success">
           <p className="text-sm text-muted-foreground">Average Monthly Savings</p>
           <p className="font-display text-3xl font-bold text-foreground mt-2">
-            $1,650
+            ₹1,650
           </p>
           <p className="text-xs text-success mt-1">+12.5% improvement</p>
         </div>
@@ -120,7 +120,7 @@ export default function Analytics() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value / 1000}k`}
+                tickFormatter={(value) => `₹${value / 1000}k`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar

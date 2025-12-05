@@ -38,7 +38,7 @@ const initialAlerts: Alert[] = [
     type: "danger",
     title: "Overspending Alert",
     description:
-      "Your Entertainment spending has exceeded the budget by $150. Review your recent transactions.",
+      "Your Entertainment spending has exceeded the budget by ₹150. Review your recent transactions.",
     time: "5 hours ago",
     read: false,
   },
@@ -47,7 +47,7 @@ const initialAlerts: Alert[] = [
     type: "reminder",
     title: "Bill Reminder",
     description:
-      "Electricity bill of $125 is due in 3 days. Make sure you have sufficient funds.",
+      "Electricity bill of ₹125 is due in 3 days. Make sure you have sufficient funds.",
     time: "1 day ago",
     read: true,
   },
@@ -65,7 +65,7 @@ const initialAlerts: Alert[] = [
     type: "reminder",
     title: "Subscription Renewal",
     description:
-      "Netflix subscription ($15.99) will renew in 5 days. Cancel if not needed.",
+      "Netflix subscription (₹199) will renew in 5 days. Cancel if not needed.",
     time: "3 days ago",
     read: true,
   },
@@ -74,7 +74,7 @@ const initialAlerts: Alert[] = [
     type: "warning",
     title: "Low Balance Warning",
     description:
-      "Your checking account balance is below $500. Consider transferring funds.",
+      "Your checking account balance is below ₹500. Consider transferring funds.",
     time: "4 days ago",
     read: true,
   },

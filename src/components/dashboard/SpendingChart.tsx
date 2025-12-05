@@ -16,7 +16,7 @@ const CustomTooltip = ({ active, payload }: any) => {
       <div className="glass-card p-3 border border-primary/20">
         <p className="text-sm font-medium text-foreground">{payload[0].name}</p>
         <p className="text-lg font-display font-bold text-primary">
-          ${payload[0].value.toLocaleString()}
+          ₹{payload[0].value.toLocaleString()}
         </p>
       </div>
     );

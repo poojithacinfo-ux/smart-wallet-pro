@@ -131,7 +131,7 @@ export function AddTransactionDialog({
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-display font-bold">
-                      $
+                      ₹
                     </span>
                     <Input
                       type="number"

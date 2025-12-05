@@ -22,14 +22,14 @@ const alerts: Alert[] = [
     id: "2",
     type: "danger",
     title: "Overspending Alert",
-    description: "Entertainment spending exceeded by $150",
+    description: "Entertainment spending exceeded by ₹150",
     time: "5 hours ago",
   },
   {
     id: "3",
     type: "reminder",
     title: "Bill Reminder",
-    description: "Electricity bill due in 3 days - $125",
+    description: "Electricity bill due in 3 days - ₹125",
     time: "1 day ago",
   },
   {

@@ -33,7 +33,7 @@ export function BudgetProgress() {
           Budget Overview
         </h3>
         <span className="text-sm text-muted-foreground">
-          ${totalSpent.toLocaleString()} / ${totalBudget.toLocaleString()}
+          ₹{totalSpent.toLocaleString()} / ₹{totalBudget.toLocaleString()}
         </span>
       </div>
 
@@ -91,7 +91,7 @@ export function BudgetProgress() {
                     isOverBudget ? "text-destructive" : "text-foreground"
                   )}
                 >
-                  ${category.spent} / ${category.budget}
+                  ₹{category.spent} / ₹{category.budget}
                 </span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">

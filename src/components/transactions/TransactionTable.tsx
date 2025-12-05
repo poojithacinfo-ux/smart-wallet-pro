@@ -131,7 +131,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
                             : "text-foreground"
                         )}
                       >
-                        {transaction.type === "income" ? "+" : "-"}$
+                        {transaction.type === "income" ? "+" : "-"}₹
                         {Math.abs(transaction.amount).toLocaleString()}
                       </span>
                     </div>

@@ -46,7 +46,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Balance"
-          value="$24,580"
+          value="₹24,580"
           change="+2.5% from last month"
           changeType="increase"
           icon={Wallet}
@@ -55,7 +55,7 @@ export default function Dashboard() {
         />
         <StatsCard
           title="Monthly Income"
-          value="$8,450"
+          value="₹8,450"
           change="+12.3% from last month"
           changeType="increase"
           icon={TrendingUp}
@@ -64,7 +64,7 @@ export default function Dashboard() {
         />
         <StatsCard
           title="Monthly Expenses"
-          value="$5,320"
+          value="₹5,320"
           change="-8.1% from last month"
           changeType="decrease"
           icon={TrendingDown}
@@ -73,8 +73,8 @@ export default function Dashboard() {
         />
         <StatsCard
           title="Total Savings"
-          value="$3,130"
-          change="+$520 this month"
+          value="₹3,130"
+          change="+₹520 this month"
           changeType="increase"
           icon={PiggyBank}
           iconColor="accent"

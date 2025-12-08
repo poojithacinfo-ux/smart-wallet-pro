@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,23 +12,114 @@ import {
   PieChart,
   Bell,
   Shield,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  name: z.string().trim().min(1, "Name is required").optional(),
+});
 
 export default function Index() {
   const navigate = useNavigate();
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate("/dashboard");
+    }
+  }, [user, authLoading, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For demo purposes, navigate to dashboard
-    navigate("/dashboard");
+    
+    try {
+      const validation = authSchema.safeParse({
+        email,
+        password,
+        name: isLogin ? undefined : name,
+      });
+
+      if (!validation.success) {
+        toast({
+          title: "Validation Error",
+          description: validation.error.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) {
+          toast({
+            title: "Sign In Failed",
+            description: error.message === "Invalid login credentials" 
+              ? "Invalid email or password. Please try again."
+              : error.message,
+            variant: "destructive",
+          });
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        if (!name.trim()) {
+          toast({
+            title: "Validation Error",
+            description: "Please enter your name",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        const { error } = await signUp(email, password, name);
+        if (error) {
+          if (error.message.includes("already registered")) {
+            toast({
+              title: "Account Exists",
+              description: "This email is already registered. Please sign in instead.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Sign Up Failed",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Account Created",
+            description: "Please check your email to verify your account, or sign in if email confirmation is disabled.",
+          });
+          setIsLogin(true);
+        }
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const features = [
@@ -48,6 +139,14 @@ export default function Index() {
       description: "Your financial data is encrypted and safe",
     },
   ];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -166,6 +265,7 @@ export default function Index() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="pl-12"
+                      disabled={isSubmitting}
                     />
                   </div>
                 </motion.div>
@@ -183,6 +283,7 @@ export default function Index() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-12"
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -199,6 +300,7 @@ export default function Index() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-12 pr-12"
+                    disabled={isSubmitting}
                   />
                   <button
                     type="button"
@@ -225,9 +327,21 @@ export default function Index() {
                 </div>
               )}
 
-              <Button type="submit" variant="hero" size="xl" className="w-full">
-                {isLogin ? "Sign In" : "Create Account"}
-                <ArrowRight className="h-5 w-5" />
+              <Button 
+                type="submit" 
+                variant="hero" 
+                size="xl" 
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    {isLogin ? "Sign In" : "Create Account"}
+                    <ArrowRight className="h-5 w-5" />
+                  </>
+                )}
               </Button>
             </form>
 
@@ -239,22 +353,13 @@ export default function Index() {
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  disabled={isSubmitting}
                 >
                   {isLogin ? "Sign up" : "Sign in"}
                 </button>
               </p>
             </div>
           </div>
-
-          {/* Demo Notice */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-center text-sm text-muted-foreground mt-6"
-          >
-            Demo mode: Click sign in to explore the dashboard
-          </motion.p>
         </motion.div>
       </div>
     </div>

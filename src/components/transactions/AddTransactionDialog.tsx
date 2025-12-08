@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, Minus } from "lucide-react";
+import { X, Plus, Minus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ interface AddTransactionDialogProps {
     category: string;
     date: string;
   }) => void;
+  isLoading?: boolean;
 }
 
 const categories = [
@@ -32,6 +33,7 @@ export function AddTransactionDialog({
   open,
   onClose,
   onAdd,
+  isLoading = false,
 }: AddTransactionDialogProps) {
   const [type, setType] = useState<"income" | "expense">("expense");
   const [description, setDescription] = useState("");
@@ -41,7 +43,7 @@ export function AddTransactionDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description || !amount || !category) return;
+    if (!description || !amount || !category || isLoading) return;
 
     onAdd({
       description,
@@ -56,7 +58,7 @@ export function AddTransactionDialog({
     setAmount("");
     setCategory("");
     setType("expense");
-    onClose();
+    setDate(new Date().toISOString().split("T")[0]);
   };
 
   return (
@@ -90,6 +92,7 @@ export function AddTransactionDialog({
                 <button
                   onClick={onClose}
                   className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  disabled={isLoading}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -101,6 +104,7 @@ export function AddTransactionDialog({
                   <button
                     type="button"
                     onClick={() => setType("expense")}
+                    disabled={isLoading}
                     className={cn(
                       "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-300",
                       type === "expense"
@@ -114,6 +118,7 @@ export function AddTransactionDialog({
                   <button
                     type="button"
                     onClick={() => setType("income")}
+                    disabled={isLoading}
                     className={cn(
                       "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-300",
                       type === "income"
@@ -144,6 +149,7 @@ export function AddTransactionDialog({
                       min="0"
                       step="0.01"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -159,6 +165,8 @@ export function AddTransactionDialog({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
+                    disabled={isLoading}
+                    maxLength={200}
                   />
                 </div>
 
@@ -173,6 +181,7 @@ export function AddTransactionDialog({
                         key={cat}
                         type="button"
                         onClick={() => setCategory(cat)}
+                        disabled={isLoading}
                         className={cn(
                           "px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 border",
                           category === cat
@@ -197,6 +206,7 @@ export function AddTransactionDialog({
                     onChange={(e) => setDate(e.target.value)}
                     max={new Date().toISOString().split("T")[0]}
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -207,6 +217,7 @@ export function AddTransactionDialog({
                     variant="outline"
                     onClick={onClose}
                     className="flex-1"
+                    disabled={isLoading}
                   >
                     Cancel
                   </Button>
@@ -214,8 +225,13 @@ export function AddTransactionDialog({
                     type="submit"
                     variant={type === "income" ? "success" : "default"}
                     className="flex-1"
+                    disabled={isLoading}
                   >
-                    Add {type === "income" ? "Income" : "Expense"}
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      `Add ${type === "income" ? "Income" : "Expense"}`
+                    )}
                   </Button>
                 </div>
               </form>

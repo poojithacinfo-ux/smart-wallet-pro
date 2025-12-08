@@ -14,8 +14,33 @@ import { AlertPanel } from "@/components/dashboard/AlertPanel";
 import { BudgetProgress } from "@/components/dashboard/BudgetProgress";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useProfile } from "@/hooks/useProfile";
+import { useBudgets } from "@/hooks/useBudgets";
+import { useMemo } from "react";
 
 export default function Dashboard() {
+  const { transactions, isLoading: transactionsLoading } = useTransactions();
+  const { profile, isLoading: profileLoading } = useProfile();
+  const { budget } = useBudgets();
+
+  const stats = useMemo(() => {
+    const income = transactions
+      .filter((t) => t.type === "income")
+      .reduce((acc, t) => acc + t.amount, 0);
+    
+    const expenses = transactions
+      .filter((t) => t.type === "expense")
+      .reduce((acc, t) => acc + t.amount, 0);
+    
+    const balance = income - expenses;
+    const savings = income > 0 ? balance : 0;
+
+    return { income, expenses, balance, savings };
+  }, [transactions]);
+
+  const userName = profile?.name?.split(" ")[0] || "User";
+
   return (
     <DashboardLayout>
       {/* Header */}
@@ -27,7 +52,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-display text-3xl font-bold text-foreground">
-              Welcome back, <span className="gradient-text">Alex</span>
+              Welcome back, <span className="gradient-text">{userName}</span>
             </h1>
             <p className="text-muted-foreground mt-1">
               Here's what's happening with your finances today.
@@ -46,17 +71,17 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Balance"
-          value="₹24,580"
-          change="+2.5% from last month"
-          changeType="increase"
+          value={`₹${stats.balance.toLocaleString("en-IN")}`}
+          change={stats.balance >= 0 ? "Positive balance" : "Negative balance"}
+          changeType={stats.balance >= 0 ? "increase" : "decrease"}
           icon={Wallet}
           iconColor="primary"
           delay={0.1}
         />
         <StatsCard
           title="Monthly Income"
-          value="₹8,450"
-          change="+12.3% from last month"
+          value={`₹${stats.income.toLocaleString("en-IN")}`}
+          change={transactions.length > 0 ? `${transactions.filter(t => t.type === "income").length} transactions` : "No income yet"}
           changeType="increase"
           icon={TrendingUp}
           iconColor="success"
@@ -64,8 +89,8 @@ export default function Dashboard() {
         />
         <StatsCard
           title="Monthly Expenses"
-          value="₹5,320"
-          change="-8.1% from last month"
+          value={`₹${stats.expenses.toLocaleString("en-IN")}`}
+          change={transactions.length > 0 ? `${transactions.filter(t => t.type === "expense").length} transactions` : "No expenses yet"}
           changeType="decrease"
           icon={TrendingDown}
           iconColor="destructive"
@@ -73,9 +98,9 @@ export default function Dashboard() {
         />
         <StatsCard
           title="Total Savings"
-          value="₹3,130"
-          change="+₹520 this month"
-          changeType="increase"
+          value={`₹${stats.savings.toLocaleString("en-IN")}`}
+          change={budget ? `Budget: ₹${budget.toLocaleString("en-IN")}` : "No budget set"}
+          changeType={stats.savings > 0 ? "increase" : "neutral"}
           icon={PiggyBank}
           iconColor="accent"
           delay={0.4}

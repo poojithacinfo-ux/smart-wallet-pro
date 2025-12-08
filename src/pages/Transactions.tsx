@@ -1,90 +1,18 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import {
-  TransactionTable,
-  Transaction,
-} from "@/components/transactions/TransactionTable";
+import { TransactionTable } from "@/components/transactions/TransactionTable";
 import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { Button } from "@/components/ui/button";
-
-const initialTransactions: Transaction[] = [
-  {
-    id: "txn-001",
-    description: "Grocery Shopping",
-    amount: 156.32,
-    type: "expense",
-    category: "Food & Dining",
-    date: "Dec 04, 2024",
-  },
-  {
-    id: "txn-002",
-    description: "Monthly Salary",
-    amount: 5200,
-    type: "income",
-    category: "Salary",
-    date: "Dec 01, 2024",
-  },
-  {
-    id: "txn-003",
-    description: "Netflix Subscription",
-    amount: 15.99,
-    type: "expense",
-    category: "Entertainment",
-    date: "Dec 01, 2024",
-  },
-  {
-    id: "txn-004",
-    description: "Gas Station",
-    amount: 48.5,
-    type: "expense",
-    category: "Transportation",
-    date: "Nov 30, 2024",
-  },
-  {
-    id: "txn-005",
-    description: "Freelance Project",
-    amount: 850,
-    type: "income",
-    category: "Freelance",
-    date: "Nov 28, 2024",
-  },
-  {
-    id: "txn-006",
-    description: "Electric Bill",
-    amount: 125.0,
-    type: "expense",
-    category: "Bills",
-    date: "Nov 25, 2024",
-  },
-  {
-    id: "txn-007",
-    description: "Online Shopping",
-    amount: 234.99,
-    type: "expense",
-    category: "Shopping",
-    date: "Nov 23, 2024",
-  },
-  {
-    id: "txn-008",
-    description: "Restaurant Dinner",
-    amount: 78.5,
-    type: "expense",
-    category: "Food & Dining",
-    date: "Nov 22, 2024",
-  },
-];
+import { useTransactions } from "@/hooks/useTransactions";
 
 export default function Transactions() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(initialTransactions);
+  const { transactions, isLoading, addTransaction, isAdding } = useTransactions();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<"all" | "income" | "expense">(
-    "all"
-  );
+  const [selectedType, setSelectedType] = useState<"all" | "income" | "expense">("all");
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const filteredTransactions = useMemo(() => {
@@ -106,16 +34,8 @@ export default function Transactions() {
     category: string;
     date: string;
   }) => {
-    const transaction: Transaction = {
-      id: `txn-${Date.now()}`,
-      ...newTransaction,
-      date: new Date(newTransaction.date).toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      }),
-    };
-    setTransactions([transaction, ...transactions]);
+    addTransaction(newTransaction);
+    setDialogOpen(false);
   };
 
   const totalIncome = transactions
@@ -161,7 +81,7 @@ export default function Transactions() {
           <div>
             <p className="text-sm text-muted-foreground">Total Transactions</p>
             <p className="font-display text-2xl font-bold text-foreground">
-              {transactions.length}
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : transactions.length}
             </p>
           </div>
         </div>
@@ -169,7 +89,7 @@ export default function Transactions() {
           <div>
             <p className="text-sm text-muted-foreground">Total Income</p>
             <p className="font-display text-2xl font-bold text-success">
-              +₹{totalIncome.toLocaleString()}
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : `+₹${totalIncome.toLocaleString("en-IN")}`}
             </p>
           </div>
         </div>
@@ -177,7 +97,7 @@ export default function Transactions() {
           <div>
             <p className="text-sm text-muted-foreground">Total Expenses</p>
             <p className="font-display text-2xl font-bold text-destructive">
-              -₹{totalExpenses.toLocaleString()}
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : `-₹${totalExpenses.toLocaleString("en-IN")}`}
             </p>
           </div>
         </div>
@@ -199,7 +119,17 @@ export default function Transactions() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <TransactionTable transactions={filteredTransactions} />
+        {isLoading ? (
+          <div className="glass-card p-12 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="glass-card p-12 text-center">
+            <p className="text-muted-foreground">No transactions yet. Add your first transaction to get started!</p>
+          </div>
+        ) : (
+          <TransactionTable transactions={filteredTransactions} />
+        )}
       </motion.div>
 
       {/* Add Transaction Dialog */}
@@ -207,6 +137,7 @@ export default function Transactions() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onAdd={handleAddTransaction}
+        isLoading={isAdding}
       />
     </DashboardLayout>
   );

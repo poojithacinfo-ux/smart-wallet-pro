@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -11,6 +11,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useMemo } from "react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -22,6 +25,21 @@ const navItems = [
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { transactions } = useTransactions();
+
+  const savingsChange = useMemo(() => {
+    const income = transactions.filter(t => t.type === "income").reduce((acc, t) => acc + t.amount, 0);
+    const expenses = transactions.filter(t => t.type === "expense").reduce((acc, t) => acc + t.amount, 0);
+    if (income === 0) return 0;
+    return ((income - expenses) / income * 100);
+  }, [transactions]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 glass-card border-r border-primary/10">
@@ -92,13 +110,15 @@ export function Sidebar() {
           className="mb-6 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 p-4 border border-primary/20"
         >
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-4 w-4 text-success" />
+            <TrendingUp className={cn("h-4 w-4", savingsChange >= 0 ? "text-success" : "text-destructive")} />
             <span className="text-xs text-muted-foreground">This Month</span>
           </div>
           <p className="font-display text-2xl font-bold text-foreground">
-            +12.5%
+            {savingsChange >= 0 ? "+" : ""}{savingsChange.toFixed(1)}%
           </p>
-          <p className="text-xs text-success">Savings increased</p>
+          <p className={cn("text-xs", savingsChange >= 0 ? "text-success" : "text-destructive")}>
+            {savingsChange >= 0 ? "Savings rate" : "Over budget"}
+          </p>
         </motion.div>
 
         {/* Logout */}
@@ -106,6 +126,7 @@ export function Sidebar() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
+          onClick={handleLogout}
           className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
         >
           <LogOut className="h-5 w-5" />

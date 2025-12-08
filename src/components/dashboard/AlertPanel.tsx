@@ -1,45 +1,7 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, TrendingDown, Calendar, Bell } from "lucide-react";
+import { AlertTriangle, TrendingDown, Calendar, Bell, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Alert {
-  id: string;
-  type: "warning" | "danger" | "reminder" | "info";
-  title: string;
-  description: string;
-  time: string;
-}
-
-const alerts: Alert[] = [
-  {
-    id: "1",
-    type: "warning",
-    title: "Budget Warning",
-    description: "You've used 85% of your monthly budget",
-    time: "2 hours ago",
-  },
-  {
-    id: "2",
-    type: "danger",
-    title: "Overspending Alert",
-    description: "Entertainment spending exceeded by ₹150",
-    time: "5 hours ago",
-  },
-  {
-    id: "3",
-    type: "reminder",
-    title: "Bill Reminder",
-    description: "Electricity bill due in 3 days - ₹125",
-    time: "1 day ago",
-  },
-  {
-    id: "4",
-    type: "info",
-    title: "Savings Goal",
-    description: "You're 70% towards your vacation fund!",
-    time: "2 days ago",
-  },
-];
+import { useAlerts, Alert } from "@/hooks/useAlerts";
 
 const alertStyles = {
   warning: {
@@ -73,6 +35,8 @@ const alertStyles = {
 };
 
 export function AlertPanel() {
+  const { alerts, isLoading } = useAlerts();
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -89,44 +53,58 @@ export function AlertPanel() {
         </span>
       </div>
       <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-glass pr-2">
-        {alerts.map((alert, index) => {
-          const style = alertStyles[alert.type];
-          const Icon = style.icon;
-          return (
-            <motion.div
-              key={alert.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + index * 0.1 }}
-              className={cn(
-                "flex items-start gap-3 rounded-xl p-4 border transition-all duration-300 cursor-pointer",
-                style.bg,
-                style.border,
-                style.glow
-              )}
-            >
-              <div
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : alerts.length === 0 ? (
+          <div className="text-center py-8">
+            <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">No alerts yet</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">
+              Alerts will appear here when you have budget warnings or bill reminders
+            </p>
+          </div>
+        ) : (
+          alerts.map((alert, index) => {
+            const style = alertStyles[alert.type];
+            const Icon = style.icon;
+            return (
+              <motion.div
+                key={alert.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
                 className={cn(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                  style.bg
+                  "flex items-start gap-3 rounded-xl p-4 border transition-all duration-300 cursor-pointer",
+                  style.bg,
+                  style.border,
+                  style.glow
                 )}
               >
-                <Icon className={cn("h-5 w-5", style.iconColor)} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground text-sm">
-                  {alert.title}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                  {alert.description}
-                </p>
-                <p className="text-xs text-muted-foreground/70 mt-1">
-                  {alert.time}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
+                <div
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                    style.bg
+                  )}
+                >
+                  <Icon className={cn("h-5 w-5", style.iconColor)} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">
+                    {alert.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                    {alert.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    {alert.time}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
     </motion.div>
   );

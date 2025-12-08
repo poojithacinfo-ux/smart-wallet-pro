@@ -72,14 +72,16 @@ export function AddTransactionDialog({
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
           />
 
-          {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-          >
-            <div className="glass-card p-6 neon-glow">
+          {/* Dialog Container - scrollable */}
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="w-full max-w-md"
+              >
+                <div className="glass-card p-6 neon-glow">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-display text-xl font-bold text-foreground">
@@ -219,6 +221,8 @@ export function AddTransactionDialog({
               </form>
             </div>
           </motion.div>
+            </div>
+          </div>
         </>
       )}
     </AnimatePresence>

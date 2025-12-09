@@ -1,1 +1,16 @@
 project_id = "omqzjfmuznqomebipqoe"
+
+[functions.analytics-summary]
+verify_jwt = false
+
+[functions.analytics-category-spend]
+verify_jwt = false
+
+[functions.analytics-trend]
+verify_jwt = false
+
+[functions.alerts]
+verify_jwt = false
+
+[functions.check-overspending]
+verify_jwt = false

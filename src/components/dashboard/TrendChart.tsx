@@ -9,7 +9,13 @@ import {
   AreaChart,
 } from "recharts";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+
+interface TrendChartProps {
+  from?: string;
+  to?: string;
+}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -36,10 +42,48 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function TrendChart() {
+export function TrendChart({ from, to }: TrendChartProps) {
   const { transactions, isLoading } = useTransactions();
+  const [period, setPeriod] = useState<"monthly" | "weekly">("monthly");
 
   const data = useMemo(() => {
+    const filteredTransactions = transactions.filter((t) => {
+      if (from && t.rawDate < from) return false;
+      if (to && t.rawDate > to) return false;
+      return true;
+    });
+
+    if (period === "weekly") {
+      const weeklyData: Record<string, { income: number; expenses: number }> = {};
+      
+      filteredTransactions.forEach((t) => {
+        const date = new Date(t.rawDate);
+        const startOfYear = new Date(date.getFullYear(), 0, 1);
+        const days = Math.floor((date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+        const week = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        const weekKey = `W${week} '${date.getFullYear().toString().slice(-2)}`;
+        
+        if (!weeklyData[weekKey]) {
+          weeklyData[weekKey] = { income: 0, expenses: 0 };
+        }
+        
+        if (t.type === "income") {
+          weeklyData[weekKey].income += t.amount;
+        } else {
+          weeklyData[weekKey].expenses += t.amount;
+        }
+      });
+
+      return Object.entries(weeklyData)
+        .slice(-12) // Last 12 weeks
+        .map(([week, data]) => ({
+          month: week,
+          income: data.income,
+          expenses: data.expenses,
+        }));
+    }
+
+    // Monthly
     const monthlyData: Record<string, { income: number; expenses: number }> = {};
     
     // Get last 6 months
@@ -52,7 +96,7 @@ export function TrendChart() {
       monthlyData[monthKey] = { income: 0, expenses: 0 };
     }
 
-    transactions.forEach((t) => {
+    filteredTransactions.forEach((t) => {
       const txDate = new Date(t.rawDate);
       const monthKey = txDate.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
       
@@ -70,7 +114,7 @@ export function TrendChart() {
       income: monthlyData[month].income,
       expenses: monthlyData[month].expenses,
     }));
-  }, [transactions]);
+  }, [transactions, period, from, to]);
 
   if (isLoading) {
     return (
@@ -88,9 +132,29 @@ export function TrendChart() {
       transition={{ delay: 0.4 }}
       className="glass-card p-6"
     >
-      <h3 className="font-display text-lg font-semibold text-foreground mb-4">
-        Income vs Expenses Trend
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-lg font-semibold text-foreground">
+          Income vs Expenses Trend
+        </h3>
+        <div className="flex bg-muted/50 rounded-lg p-1">
+          <Button
+            variant={period === "monthly" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setPeriod("monthly")}
+            className="text-xs px-3 h-7"
+          >
+            Monthly
+          </Button>
+          <Button
+            variant={period === "weekly" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setPeriod("weekly")}
+            className="text-xs px-3 h-7"
+          >
+            Weekly
+          </Button>
+        </div>
+      </div>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>

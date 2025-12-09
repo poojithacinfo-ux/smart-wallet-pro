@@ -10,6 +10,7 @@ export interface Transaction {
   type: "income" | "expense";
   category: string;
   date: string;
+  rawDate: string;
 }
 
 export function useTransactions() {
@@ -41,6 +42,7 @@ export function useTransactions() {
           day: "2-digit",
           year: "numeric",
         }),
+        rawDate: t.date,
       }));
     },
     enabled: !!user,

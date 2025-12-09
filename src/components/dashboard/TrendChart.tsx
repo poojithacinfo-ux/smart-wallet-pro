@@ -1,7 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -10,15 +8,8 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-
-const data = [
-  { month: "Jan", income: 5200, expenses: 3800 },
-  { month: "Feb", income: 4800, expenses: 4200 },
-  { month: "Mar", income: 5500, expenses: 3600 },
-  { month: "Apr", income: 6100, expenses: 4100 },
-  { month: "May", income: 5800, expenses: 3900 },
-  { month: "Jun", income: 6500, expenses: 4500 },
-];
+import { useTransactions } from "@/hooks/useTransactions";
+import { useMemo } from "react";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -29,13 +20,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <p className="text-sm">
             <span className="text-success">Income: </span>
             <span className="font-display font-bold text-foreground">
-              ₹{payload[0]?.value?.toLocaleString()}
+              ₹{payload[0]?.value?.toLocaleString("en-IN")}
             </span>
           </p>
           <p className="text-sm">
             <span className="text-destructive">Expenses: </span>
             <span className="font-display font-bold text-foreground">
-              ₹{payload[1]?.value?.toLocaleString()}
+              ₹{payload[1]?.value?.toLocaleString("en-IN")}
             </span>
           </p>
         </div>
@@ -46,6 +37,50 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function TrendChart() {
+  const { transactions, isLoading } = useTransactions();
+
+  const data = useMemo(() => {
+    const monthlyData: Record<string, { income: number; expenses: number }> = {};
+    
+    // Get last 6 months
+    const months: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthKey = date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+      months.push(monthKey);
+      monthlyData[monthKey] = { income: 0, expenses: 0 };
+    }
+
+    transactions.forEach((t) => {
+      const txDate = new Date(t.rawDate);
+      const monthKey = txDate.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+      
+      if (monthlyData[monthKey]) {
+        if (t.type === "income") {
+          monthlyData[monthKey].income += t.amount;
+        } else {
+          monthlyData[monthKey].expenses += t.amount;
+        }
+      }
+    });
+
+    return months.map((month) => ({
+      month,
+      income: monthlyData[month].income,
+      expenses: monthlyData[month].expenses,
+    }));
+  }, [transactions]);
+
+  if (isLoading) {
+    return (
+      <motion.div className="glass-card p-6 h-[380px] animate-pulse">
+        <div className="h-4 w-40 bg-muted rounded mb-4" />
+        <div className="h-[300px] bg-muted/50 rounded" />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}

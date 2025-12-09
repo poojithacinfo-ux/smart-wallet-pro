@@ -3,6 +3,11 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recha
 import { useTransactions } from "@/hooks/useTransactions";
 import { useMemo } from "react";
 
+interface SpendingChartProps {
+  from?: string;
+  to?: string;
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   "Food & Dining": "hsl(208 100% 61%)",
   "Transportation": "hsl(270 100% 71%)",
@@ -29,14 +34,19 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export function SpendingChart() {
+export function SpendingChart({ from, to }: SpendingChartProps) {
   const { transactions, isLoading } = useTransactions();
 
   const data = useMemo(() => {
     const categoryTotals: Record<string, number> = {};
     
     transactions
-      .filter((t) => t.type === "expense")
+      .filter((t) => {
+        if (t.type !== "expense") return false;
+        if (from && t.rawDate < from) return false;
+        if (to && t.rawDate > to) return false;
+        return true;
+      })
       .forEach((t) => {
         categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
       });
@@ -46,7 +56,7 @@ export function SpendingChart() {
       value,
       color: CATEGORY_COLORS[name] || CATEGORY_COLORS["Others"],
     }));
-  }, [transactions]);
+  }, [transactions, from, to]);
 
   if (isLoading) {
     return (

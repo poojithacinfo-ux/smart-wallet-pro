@@ -2,24 +2,42 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   User,
-  Mail,
   Lock,
   Bell,
   Shield,
   CreditCard,
-  Palette,
   Save,
+  Wallet,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useBudgets } from "@/hooks/useBudgets";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
+  const [budgetAmount, setBudgetAmount] = useState("");
+  const { budget, setBudget, isSettingBudget } = useBudgets();
+  const { toast } = useToast();
+
+  const handleSaveBudget = () => {
+    const amount = parseFloat(budgetAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid budget amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setBudget(amount);
+  };
 
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
+    { id: "budget", label: "Budget", icon: Wallet },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "security", label: "Security", icon: Shield },
     { id: "billing", label: "Billing", icon: CreditCard },
@@ -135,6 +153,72 @@ export default function Settings() {
                 <Save className="h-4 w-4" />
                 Save Changes
               </Button>
+            </div>
+          )}
+
+          {activeTab === "budget" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="font-display text-xl font-semibold text-foreground">
+                  Monthly Budget
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Set your monthly spending budget to track your expenses.
+                </p>
+              </div>
+
+              <div className="glass-card p-6 bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
+                <p className="text-sm text-muted-foreground">Current Monthly Budget</p>
+                <p className="font-display text-3xl font-bold gradient-text mt-1">
+                  {budget ? `₹${budget.toLocaleString("en-IN")}` : "Not set"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Set New Budget Amount
+                </label>
+                <div className="flex gap-3">
+                  <Input
+                    type="number"
+                    placeholder="Enter amount in ₹"
+                    value={budgetAmount}
+                    onChange={(e) => setBudgetAmount(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="hero"
+                    onClick={handleSaveBudget}
+                    disabled={isSettingBudget}
+                  >
+                    <Save className="h-4 w-4" />
+                    {isSettingBudget ? "Saving..." : "Save Budget"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <h3 className="font-display font-semibold text-foreground mb-3">
+                  Budget Tips
+                </h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    Set a realistic budget based on your average monthly expenses
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    You'll receive alerts when you reach 80% of your budget
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    Review and adjust your budget monthly for better tracking
+                  </li>
+                </ul>
+              </div>
             </div>
           )}
 

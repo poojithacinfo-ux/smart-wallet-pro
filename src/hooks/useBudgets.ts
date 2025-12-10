@@ -19,12 +19,13 @@ export function useBudgets() {
         .from("budgets")
         .select("*")
         .eq("user_id", user.id)
-        .eq("month", currentMonth)
+        .eq("period_value", currentMonth)
+        .eq("period_type", "monthly")
         .maybeSingle();
 
       if (error) throw error;
 
-      return data ? Number(data.amount) : null;
+      return data ? Number(data.limit_amount) : null;
     },
     enabled: !!user,
   });
@@ -38,24 +39,31 @@ export function useBudgets() {
         .from("budgets")
         .select("id")
         .eq("user_id", user.id)
-        .eq("month", currentMonth)
+        .eq("period_value", currentMonth)
+        .eq("period_type", "monthly")
         .maybeSingle();
 
       if (existing) {
         const { error } = await supabase
           .from("budgets")
-          .update({ amount })
+          .update({ limit_amount: amount })
           .eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("budgets")
-          .insert({ user_id: user.id, month: currentMonth, amount });
+          .insert({ 
+            user_id: user.id, 
+            period_value: currentMonth, 
+            period_type: "monthly" as const,
+            limit_amount: amount 
+          });
         if (error) throw error;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      queryClient.invalidateQueries({ queryKey: ["limits"] });
       toast({
         title: "Budget updated",
         description: "Your monthly budget has been saved.",

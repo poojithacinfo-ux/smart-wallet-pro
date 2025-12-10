@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.check-overspending]
 verify_jwt = false
+
+[functions.limits]
+verify_jwt = false

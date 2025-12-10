@@ -16,26 +16,47 @@ export type Database = {
     Tables: {
       alerts: {
         Row: {
+          amount_limit: number | null
           created_at: string
+          current_spent: number | null
           id: string
           is_read: boolean
+          is_sent: boolean | null
           message: string
+          percent_used: number | null
+          period_value: string | null
+          send_status: string | null
+          sent_at: string | null
           type: Database["public"]["Enums"]["alert_type"]
           user_id: string
         }
         Insert: {
+          amount_limit?: number | null
           created_at?: string
+          current_spent?: number | null
           id?: string
           is_read?: boolean
+          is_sent?: boolean | null
           message: string
+          percent_used?: number | null
+          period_value?: string | null
+          send_status?: string | null
+          sent_at?: string | null
           type: Database["public"]["Enums"]["alert_type"]
           user_id: string
         }
         Update: {
+          amount_limit?: number | null
           created_at?: string
+          current_spent?: number | null
           id?: string
           is_read?: boolean
+          is_sent?: boolean | null
           message?: string
+          percent_used?: number | null
+          period_value?: string | null
+          send_status?: string | null
+          sent_at?: string | null
           type?: Database["public"]["Enums"]["alert_type"]
           user_id?: string
         }
@@ -73,24 +94,27 @@ export type Database = {
       }
       budgets: {
         Row: {
-          amount: number
           created_at: string
           id: string
-          month: string
+          limit_amount: number
+          period_type: Database["public"]["Enums"]["period_type"]
+          period_value: string
           user_id: string
         }
         Insert: {
-          amount: number
           created_at?: string
           id?: string
-          month: string
+          limit_amount: number
+          period_type?: Database["public"]["Enums"]["period_type"]
+          period_value: string
           user_id: string
         }
         Update: {
-          amount?: number
           created_at?: string
           id?: string
-          month?: string
+          limit_amount?: number
+          period_type?: Database["public"]["Enums"]["period_type"]
+          period_value?: string
           user_id?: string
         }
         Relationships: []
@@ -160,8 +184,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      alert_type: "overspending" | "low_balance" | "bill_reminder"
+      alert_type:
+        | "overspending"
+        | "low_balance"
+        | "bill_reminder"
+        | "overspending_daily"
+        | "overspending_monthly"
       bill_status: "pending" | "paid" | "overdue"
+      period_type: "monthly" | "daily"
       transaction_type: "income" | "expense"
     }
     CompositeTypes: {
@@ -290,8 +320,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      alert_type: ["overspending", "low_balance", "bill_reminder"],
+      alert_type: [
+        "overspending",
+        "low_balance",
+        "bill_reminder",
+        "overspending_daily",
+        "overspending_monthly",
+      ],
       bill_status: ["pending", "paid", "overdue"],
+      period_type: ["monthly", "daily"],
       transaction_type: ["income", "expense"],
     },
   },

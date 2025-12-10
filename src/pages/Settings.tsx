@@ -8,6 +8,7 @@ import {
   CreditCard,
   Save,
   Wallet,
+  Target,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useToast } from "@/hooks/use-toast";
+import { LimitsSettings } from "@/components/settings/LimitsSettings";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -38,6 +40,7 @@ export default function Settings() {
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "budget", label: "Budget", icon: Wallet },
+    { id: "limits", label: "Limits & Alerts", icon: Target },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "security", label: "Security", icon: Shield },
     { id: "billing", label: "Billing", icon: CreditCard },
@@ -221,6 +224,8 @@ export default function Settings() {
               </div>
             </div>
           )}
+
+          {activeTab === "limits" && <LimitsSettings />}
 
           {activeTab === "notifications" && (
             <div className="space-y-6">

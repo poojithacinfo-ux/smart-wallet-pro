@@ -12,6 +12,7 @@ import { SpendingChart } from "@/components/dashboard/SpendingChart";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { AlertPanel } from "@/components/dashboard/AlertPanel";
 import { BudgetProgress } from "@/components/dashboard/BudgetProgress";
+import { BudgetWarning } from "@/components/dashboard/BudgetWarning";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -66,6 +67,11 @@ export default function Dashboard() {
           </Link>
         </div>
       </motion.div>
+
+      {/* Budget Warnings */}
+      <div className="mb-6">
+        <BudgetWarning />
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

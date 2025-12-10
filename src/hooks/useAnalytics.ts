@@ -58,12 +58,13 @@ export function useAnalyticsSummary(from?: string, to?: string) {
       const currentMonth = new Date().toISOString().slice(0, 7);
       const { data: budgetData } = await supabase
         .from("budgets")
-        .select("amount")
+        .select("limit_amount")
         .eq("user_id", user.id)
-        .eq("month", currentMonth)
+        .eq("period_value", currentMonth)
+        .eq("period_type", "monthly")
         .maybeSingle();
 
-      const budget = budgetData?.amount ?? 0;
+      const budget = budgetData?.limit_amount ?? 0;
       const budgetUsedPercentage = budget > 0 ? Math.round((totalExpense / budget) * 100) : 0;
 
       return {

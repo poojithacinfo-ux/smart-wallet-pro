@@ -126,6 +126,7 @@ export function useLimits(periodType?: "monthly" | "daily") {
     isLoading,
     setLimit: setLimit.mutate,
     deleteLimit: deleteLimit.mutate,
+    isDeletingLimit: deleteLimit.isPending,
     isSettingLimit: setLimit.isPending,
     monthlyLimit,
     dailyLimit,

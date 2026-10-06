@@ -18,6 +18,7 @@ export interface Transaction {
   type: "income" | "expense";
   category: string;
   date: string;
+  balanceAfter: number;
 }
 
 const categoryIcons: Record<string, any> = {
@@ -62,6 +63,9 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
               </th>
               <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Amount
+              </th>
+              <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Balance after
               </th>
               <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Actions
@@ -135,6 +139,16 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
                         {Math.abs(transaction.amount).toLocaleString()}
                       </span>
                     </div>
+                  </td>
+                  <td
+                    className={cn(
+                      "px-6 py-4 text-right font-display font-semibold whitespace-nowrap",
+                      transaction.balanceAfter < 0 ? "text-destructive" : "text-success"
+                    )}
+                  >
+                    ₹{transaction.balanceAfter.toLocaleString("en-IN", {
+                      maximumFractionDigits: 2,
+                    })}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-200">

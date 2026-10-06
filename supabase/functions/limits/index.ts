@@ -74,6 +74,44 @@ serve(async (req) => {
     if (req.method === "POST") {
       // POST /api/limits - set or update a limit
       const body = await req.json();
+      if (body?.action === "delete") {
+        const limitId = body.id;
+        if (typeof limitId !== "string" || !limitId) {
+          return new Response(
+            JSON.stringify({ error: "Missing limit id" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const { data: deletedLimit, error: deleteError } = await supabase
+          .from("budgets")
+          .delete()
+          .eq("id", limitId)
+          .eq("user_id", user.id)
+          .select("id")
+          .maybeSingle();
+
+        if (deleteError) {
+          console.error("Error deleting limit:", deleteError);
+          return new Response(
+            JSON.stringify({ error: deleteError.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!deletedLimit) {
+          return new Response(
+            JSON.stringify({ error: "Limit not found" }),
+            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       const { period_type, period_value, limit_amount } = body;
 
       if (!period_type || !period_value || limit_amount === undefined) {
@@ -138,25 +176,36 @@ serve(async (req) => {
     }
 
     if (req.method === "DELETE") {
-      // DELETE /api/limits?id=<limit_id>
-      const limitId = url.searchParams.get("id");
-      if (!limitId) {
+      // Accept either a query parameter or the JSON body used by functions.invoke.
+      const body = await req.json().catch(() => ({}));
+      const limitId = url.searchParams.get("id") || body?.id;
+      if (typeof limitId !== "string" || !limitId) {
         return new Response(
           JSON.stringify({ error: "Missing limit id" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      const { error } = await supabase
+      const { data: deletedLimit, error } = await supabase
         .from("budgets")
         .delete()
         .eq("id", limitId)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id")
+        .maybeSingle();
 
       if (error) {
+        console.error("Error deleting limit:", error);
         return new Response(
           JSON.stringify({ error: error.message }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!deletedLimit) {
+        return new Response(
+          JSON.stringify({ error: "Limit not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 

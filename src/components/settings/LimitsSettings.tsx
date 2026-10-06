@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 export function LimitsSettings() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { limits, isLoading, setLimit, deleteLimit, isSettingLimit } = useLimits();
+  const { limits, isLoading, setLimit, deleteLimit, isSettingLimit, isDeletingLimit } = useLimits();
   
   const [periodType, setPeriodType] = useState<"monthly" | "daily">("monthly");
   const [periodValue, setPeriodValue] = useState(() => {
@@ -192,6 +192,9 @@ export function LimitsSettings() {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteLimit(limit.id)}
+                      disabled={isDeletingLimit}
+                      aria-label={`Delete ${limit.period_type} limit for ${formatPeriodDisplay(limit.period_type, limit.period_value)}`}
+                      title="Delete limit"
                       className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="h-4 w-4" />

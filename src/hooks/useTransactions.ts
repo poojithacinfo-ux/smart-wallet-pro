@@ -11,6 +11,7 @@ export interface Transaction {
   category: string;
   date: string;
   rawDate: string;
+  balanceAfter: number;
 }
 
 export function useTransactions() {
@@ -27,23 +28,33 @@ export function useTransactions() {
         .from("transactions")
         .select("*")
         .eq("user_id", user.id)
-        .order("date", { ascending: false });
+        .order("date", { ascending: true })
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
 
-      return data.map((t) => ({
-        id: t.id,
-        description: t.note || t.category,
-        amount: Number(t.amount),
-        type: t.type as "income" | "expense",
-        category: t.category,
-        date: new Date(t.date).toLocaleDateString("en-IN", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-        }),
-        rawDate: t.date,
-      }));
+      let runningBalance = 0;
+      const chronologicalTransactions = (data ?? []).map((t) => {
+        const amount = Number(t.amount);
+        runningBalance += t.type === "income" ? amount : -amount;
+
+        return {
+          id: t.id,
+          description: t.note || t.category,
+          amount,
+          type: t.type as "income" | "expense",
+          category: t.category,
+          date: new Date(t.date).toLocaleDateString("en-IN", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          }),
+          rawDate: t.date,
+          balanceAfter: runningBalance,
+        };
+      });
+
+      return chronologicalTransactions.reverse();
     },
     enabled: !!user,
   });

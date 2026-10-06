@@ -1,0 +1,2 @@
+- [ ] Fix monthly and daily limit deletion so the request ID reaches the protected Supabase function and missing rows are reported.
+- [ ] Show the chronological running account balance after every transaction, updating from live transaction data.

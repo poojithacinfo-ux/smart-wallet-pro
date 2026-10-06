@@ -65,7 +65,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
                 Amount
               </th>
               <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Balance after
+                Balance left
               </th>
               <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Actions

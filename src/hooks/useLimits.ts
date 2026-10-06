@@ -83,11 +83,11 @@ export function useLimits(periodType?: "monthly" | "daily") {
       if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase.functions.invoke("limits", {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: { id: limitId },
+        body: { action: "delete", id: limitId },
       });
 
       if (error) throw error;
